@@ -34,19 +34,9 @@ public class RaymarchCamera : MonoBehaviour
         }
     }
     private Camera _cam;
+    public float _maxDis;
 
-    
-    
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
@@ -58,7 +48,7 @@ public class RaymarchCamera : MonoBehaviour
         
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
-        _raymarchMaterial.SetVector ("_CamWorldSpace", _camera.transform.position);
+        _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
         RenderTexture.active = destination;
 
         //https://docs.unity3d.com/cn/2020.2/ScriptReference/GL.LoadOrtho.html
