@@ -22,6 +22,7 @@ Shader "Comstom/RaymarchShader"
             sampler2D _MainTex;
             uniform float4x4 _CamFrustum,_CamToWorld;
             uniform float _MaxDis;
+            uniform float4 _shpere1;
 
             struct appdata
             {
@@ -59,7 +60,7 @@ Shader "Comstom/RaymarchShader"
 
             float disField(float3 camWPos)
             {
-                float sphere = sdSphere(camWPos-float3(0,0,0),2.0);
+                float sphere = sdSphere(camWPos - _shpere1.xyz,_shpere1.w);
                 return sphere;
                   
             }

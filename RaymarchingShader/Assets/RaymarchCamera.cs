@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Camera))]
+[ExecuteInEditMode]
 public class RaymarchCamera : MonoBehaviour
 {
     
@@ -35,6 +37,7 @@ public class RaymarchCamera : MonoBehaviour
     }
     private Camera _cam;
     public float _maxDis;
+    public Vector4 _sphere1;
 
 
 
@@ -49,6 +52,7 @@ public class RaymarchCamera : MonoBehaviour
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
+        _raymarchMaterial.SetVector("_shpere1", _sphere1);
         RenderTexture.active = destination;
 
         //https://docs.unity3d.com/cn/2020.2/ScriptReference/GL.LoadOrtho.html

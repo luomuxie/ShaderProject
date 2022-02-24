@@ -314,3 +314,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: e7c65350c491fa64791a013dc7f4a06e, type: 3}
   _maxDis: 24.31
+  _sphere1: {x: 5.69, y: -0.3, z: 0.54, w: 3.87}
