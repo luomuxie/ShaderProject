@@ -23,6 +23,7 @@ Shader "Comstom/RaymarchShader"
             uniform float4x4 _CamFrustum,_CamToWorld;
             uniform float _MaxDis;
             uniform float4 _shpere1;
+            uniform float3 _LightDir;
 
             struct appdata
             {
@@ -65,6 +66,7 @@ Shader "Comstom/RaymarchShader"
                   
             }
 
+            //法线的计算可以了解一下gradient 与 normal的关系
             float3 getNormal( float3 p)
             {
                 const float2 offset = float2(0.001,0.0);
@@ -78,7 +80,7 @@ Shader "Comstom/RaymarchShader"
             fixed4 raymarching(float3 ro,float3 rd)
             {
                 fixed4 result = fixed4(1,1,1,1);
-                const int max_iter = 64;
+                const int max_iter = 164;
                 float t = 0;
                 for (int i = 0;i < max_iter;i++)
                 {
@@ -91,7 +93,8 @@ Shader "Comstom/RaymarchShader"
                     float dis = disField(p);
                     if(dis<0.01){
                        float3 n = getNormal(p);
-                       result = fixed4(n,1);
+                       float light = dot(n,_LightDir);
+                       result = fixed4(1,1,1,1)*light;
                        break;
                     }
                     t += dis;

@@ -21,6 +21,7 @@ public class RaymarchCamera : MonoBehaviour
         }
     }
     private Material _raymarchMat;
+    public Transform _directionaLight;
 
     public Camera _camera
     {
@@ -48,7 +49,8 @@ public class RaymarchCamera : MonoBehaviour
             Graphics.Blit(source, destination);
             return;
         }
-        
+
+        _raymarchMaterial.SetVector("_LightDir", _directionaLight ? _directionaLight.forward: Vector3.down);
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
