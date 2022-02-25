@@ -20,6 +20,7 @@ Shader "Comstom/RaymarchShader"
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
+            sampler2D _CameraDepthTexture;
             uniform float4x4 _CamFrustum,_CamToWorld;
             uniform float _MaxDis;
             uniform float4 _shpere1;
@@ -77,14 +78,15 @@ Shader "Comstom/RaymarchShader"
                 return normalize(n);
             }
 
-            fixed4 raymarching(float3 ro,float3 rd)
+            fixed4 raymarching(float3 ro,float3 rd,float depth)
             {
                 fixed4 result = fixed4(1,1,1,1);
                 const int max_iter = 164;
                 float t = 0;
                 for (int i = 0;i < max_iter;i++)
                 {
-                    if(t>_MaxDis){
+
+                    if(t>_MaxDis || t>=depth){
                         result = fixed4(rd,0);//在范围外的话赋值环境色
                         break;
                     } 
@@ -105,10 +107,12 @@ Shader "Comstom/RaymarchShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                float depth = LinearEyeDepth(tex2D(_CameraDepthTexture,i.uv).r);
+                depth *= length(i.ray);
                 fixed3 col = tex2D(_MainTex,i.uv);
                 float3 rayDir = normalize(i.ray.xyz);
                 float3 rayOrigin = _WorldSpaceCameraPos;
-                fixed4 result = raymarching(rayOrigin,rayDir);
+                fixed4 result = raymarching(rayOrigin,rayDir,depth);
                 return fixed4(col*(1.0-result.w)+result.xyz*result.w,1.0);
             }
             ENDCG
