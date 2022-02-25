@@ -85,7 +85,7 @@ Shader "Comstom/RaymarchShader"
                 for (int i = 0;i < max_iter;i++)
                 {
                     if(t>_MaxDis){
-                        result = fixed4(rd,1);//在范围外的话赋值环境色
+                        result = fixed4(rd,0);//在范围外的话赋值环境色
                         break;
                     } 
                     
@@ -93,12 +93,11 @@ Shader "Comstom/RaymarchShader"
                     float dis = disField(p);
                     if(dis<0.01){
                        float3 n = getNormal(p);
-                       float light = dot(n,_LightDir);
-                       result = fixed4(1,1,1,1)*light;
+                       float light = dot(-_LightDir,n);
+                       result = fixed4(fixed3(1,1,1)*light,1);
                        break;
                     }
                     t += dis;
-                    //检查射击范围
                 }
                 return result;
             }
@@ -106,10 +105,11 @@ Shader "Comstom/RaymarchShader"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                fixed3 col = tex2D(_MainTex,i.uv);
                 float3 rayDir = normalize(i.ray.xyz);
                 float3 rayOrigin = _WorldSpaceCameraPos;
                 fixed4 result = raymarching(rayOrigin,rayDir);
-                return result;
+                return fixed4(col*(1.0-result.w)+result.xyz*result.w,1.0);
             }
             ENDCG
         }

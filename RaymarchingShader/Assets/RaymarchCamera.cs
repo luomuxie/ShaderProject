@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 [ExecuteInEditMode]
-public class RaymarchCamera : MonoBehaviour
+public class RaymarchCamera : SceneViewFilter
 {
     
     public Shader shader;
@@ -56,6 +56,7 @@ public class RaymarchCamera : MonoBehaviour
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
         _raymarchMaterial.SetVector("_shpere1", _sphere1);
         RenderTexture.active = destination;
+        _raymarchMaterial.SetTexture("_MainTex", source);
 
         //https://docs.unity3d.com/cn/2020.2/ScriptReference/GL.LoadOrtho.html
         GL.PushMatrix(); //将模型、视图和投影矩阵保存到矩阵堆栈顶部。
