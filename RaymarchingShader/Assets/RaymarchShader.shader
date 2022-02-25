@@ -65,6 +65,16 @@ Shader "Comstom/RaymarchShader"
                   
             }
 
+            float3 getNormal( float3 p)
+            {
+                const float2 offset = float2(0.001,0.0);
+                float3 n = float3(disField(p+offset.xyy)-disField(p-offset.xyy),
+                            disField(p+offset.yxy)-disField(p-offset.yxy),
+                            disField(p+offset.yyx)-disField(p-offset.yyx)
+                );
+                return normalize(n);
+            }
+
             fixed4 raymarching(float3 ro,float3 rd)
             {
                 fixed4 result = fixed4(1,1,1,1);
@@ -80,8 +90,8 @@ Shader "Comstom/RaymarchShader"
                     float3 p = ro+rd*t;
                     float dis = disField(p);
                     if(dis<0.01){
-
-                       result = fixed4(1,1,1,1);
+                       float3 n = getNormal(p);
+                       result = fixed4(n,1);
                        break;
                     }
                     t += dis;
