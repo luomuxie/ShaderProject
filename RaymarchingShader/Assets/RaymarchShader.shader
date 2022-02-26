@@ -18,6 +18,7 @@ Shader "Comstom/RaymarchShader"
             #pragma enable_d3d11_debug_symbols
 
             #include "UnityCG.cginc"
+            #include "DistanceFunctions.cginc"
 
             sampler2D _MainTex;
             sampler2D _CameraDepthTexture;
@@ -25,6 +26,7 @@ Shader "Comstom/RaymarchShader"
             uniform float _MaxDis;
             uniform float4 _shpere1;
             uniform float3 _LightDir;
+            uniform fixed4 _mainColor;
 
             struct appdata
             {
@@ -55,10 +57,6 @@ Shader "Comstom/RaymarchShader"
             /*
             *圆的计算参考圆锥体
             */
-
-            float sdSphere(float3 p,float s){
-                return length(p)-s;
-             }
 
             float disField(float3 camWPos)
             {
@@ -96,7 +94,7 @@ Shader "Comstom/RaymarchShader"
                     if(dis<0.01){
                        float3 n = getNormal(p);
                        float light = dot(-_LightDir,n);
-                       result = fixed4(fixed3(1,1,1)*light,1);
+                       result = fixed4(_mainColor.rgb*light,1);
                        break;
                     }
                     t += dis;

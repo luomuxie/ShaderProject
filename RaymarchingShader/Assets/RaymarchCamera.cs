@@ -39,7 +39,7 @@ public class RaymarchCamera : SceneViewFilter
     private Camera _cam;
     public float _maxDis;
     public Vector4 _sphere1;
-
+    public Color _mainColor;
 
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -55,6 +55,7 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
         _raymarchMaterial.SetVector("_shpere1", _sphere1);
+        _raymarchMaterial.SetColor("_mainColor", _mainColor); 
         RenderTexture.active = destination;
         _raymarchMaterial.SetTexture("_MainTex", source);
 
