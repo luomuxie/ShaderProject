@@ -37,8 +37,16 @@ public class RaymarchCamera : SceneViewFilter
         }
     }
     private Camera _cam;
-    public float _maxDis;
+    
     public Color _mainColor;
+
+    [Header("set up")]
+    public float _maxDis;
+    [Range(0,300)]
+    public int _MaxIter;
+    [Range(0.0f,0.1f)]
+    public float _Accuracy;
+
 
     [Header ("Dir Light")]
     public Transform _directionaLight;
@@ -51,6 +59,16 @@ public class RaymarchCamera : SceneViewFilter
     public Vector2 _ShadowDis;
     [Range(1, 128)]
     public float _ShadowPenumbra;
+
+ 
+    [Header("Ambient Occlusion")]
+    [Range(0.01f,10.0f)]
+    public float _AoStepsize;
+    [Range(0,1)]
+    public float _AoIntesity;
+    [Range(1,5)]
+    public int _AoIter;
+
 
 
     [Header("signe dis field")]
@@ -86,6 +104,14 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetFloat("_ShadowIntensity", _ShadowIntensity);
         _raymarchMaterial.SetVector("_ShadowDis", _ShadowDis);
         _raymarchMaterial.SetFloat("_ShadowPenumbra", _ShadowPenumbra);
+
+        _raymarchMaterial.SetInt("_MaxIter", _MaxIter);
+        _raymarchMaterial.SetFloat("_Accuracy", _Accuracy);
+
+        _raymarchMaterial.SetFloat("_AoStepsize", _AoStepsize);
+        _raymarchMaterial.SetFloat("_AoIntesity", _AoIntesity);
+        _raymarchMaterial.SetInt("_AoIter", _AoIter);
+
 
         // _raymarchMaterial.SetVector("_modInterval", _modInterval);
         RenderTexture.active = destination;

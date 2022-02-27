@@ -28,7 +28,7 @@ Shader "Comstom/RaymarchShader"
             uniform float3 _LightDir,_LightCol;
             uniform fixed4 _mainColor;
             uniform float2 _ShadowDis;
-            uniform float _LightIntensity,_ShadowIntensity,_ShadowPenumbra;
+            uniform float _LightIntensity,_ShadowIntensity,_ShadowPenumbra,_MaxIter,_Accuracy;
 
 
             struct appdata
@@ -113,25 +113,43 @@ Shader "Comstom/RaymarchShader"
                 return result;
             }
 
+            uniform float _AoStepsize,_AoIntesity;
+            uniform int _AoIter;
+            float AmbientOcculusion(float3 p,float3 n){
+                float step = _AoStepsize;
+                float ao = 0.0;
+                float dis;
+                for(int i = 1;i<=_AoStepsize;i++){
+                    dis = step*i;
+                    ao += max(0.0,(dis-disField(p+n*dis))/dis);
+                }
+                return (1-ao*_AoIntesity);
+            }
+
             float3 shading(float3 p,float3 n)
             {
+                float3 result;
+                //diffuse Color;
+                float3 color = _mainColor.rgb;
                 //DirL
-                float result = (_LightCol* dot(-_LightDir,n)*0.5+0.5)*_LightIntensity;
+                float light = (_LightCol* dot(-_LightDir,n)*0.5+0.5)*_LightIntensity;
                 //shadows
                 //float shadow = hardShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y)*0.5+0.5;
                 float shadow = softShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y,_ShadowPenumbra)*0.5+0.5;
                 shadow = max(0.0,pow(shadow,_ShadowIntensity));
-                result *= shadow;
+
+                float ao = AmbientOcculusion(p,n);
+                result = color*light*shadow*ao;
 
                 return result;
             }
 
+
             fixed4 raymarching(float3 ro,float3 rd,float depth)
             {
                 fixed4 result = fixed4(1,1,1,1);
-                const int max_iter = 164;
                 float t = 0;
-                for (int i = 0;i < max_iter;i++)
+                for (int i = 0;i < _MaxIter;i++)
                 {
 
                     if(t>_MaxDis || t>=depth){
@@ -141,7 +159,7 @@ Shader "Comstom/RaymarchShader"
                     
                     float3 p = ro+rd*t;
                     float dis = disField(p);
-                    if(dis<0.01){
+                    if(dis<_Accuracy){
                        float3 n = getNormal(p);
                        float3 s = shading(p,n);
                        result = fixed4(_mainColor.rgb*s,1);
