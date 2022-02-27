@@ -25,9 +25,11 @@ Shader "Comstom/RaymarchShader"
             uniform float4x4 _CamFrustum,_CamToWorld;
             uniform float _MaxDis,_box1round,_boxSphereSmooth,_sphereIntersectSmooth;
             uniform float4 _shpere1,_shpere2,_box1;
-            uniform float3 _LightDir;
+            uniform float3 _LightDir,_LightCol;
             uniform fixed4 _mainColor;
-            uniform float3 _modInterval;
+            uniform float2 _ShadowDis;
+            uniform float _LightIntensity,_ShadowIntensity;
+
 
             struct appdata
             {
@@ -83,6 +85,31 @@ Shader "Comstom/RaymarchShader"
                 return normalize(n);
             }
 
+            float hardShadow(float3 ro,float3 rd,float mint,float maxt)
+            {
+                for(float t = mint;t<maxt;)
+                {
+                   float h = disField(ro+rd*t);
+                   if(h<0.001){
+                       return 0.0;
+                   }
+                   t+=h;
+                }
+                return 1.0;
+            }
+
+            float3 shading(float3 p,float3 n)
+            {
+                //DirL
+                float result = (_LightCol* dot(-_LightDir,n)*0.5+0.5)*_LightIntensity;
+                //shadows
+                float shadow = hardShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y)*0.5+0.5;
+                shadow = max(0.0,pow(shadow,_ShadowIntensity));
+                result *= shadow;
+
+                return result;
+            }
+
             fixed4 raymarching(float3 ro,float3 rd,float depth)
             {
                 fixed4 result = fixed4(1,1,1,1);
@@ -100,8 +127,8 @@ Shader "Comstom/RaymarchShader"
                     float dis = disField(p);
                     if(dis<0.01){
                        float3 n = getNormal(p);
-                       float light = dot(-_LightDir,n);
-                       result = fixed4(_mainColor.rgb*light,1);
+                       float3 s = shading(p,n);
+                       result = fixed4(_mainColor.rgb*s,1);
                        break;
                     }
                     t += dis;
