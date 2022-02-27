@@ -24,9 +24,10 @@ Shader "Comstom/RaymarchShader"
             sampler2D _CameraDepthTexture;
             uniform float4x4 _CamFrustum,_CamToWorld;
             uniform float _MaxDis;
-            uniform float4 _shpere1;
+            uniform float4 _shpere1,_box1;
             uniform float3 _LightDir;
             uniform fixed4 _mainColor;
+            uniform float3 _modInterval;
 
             struct appdata
             {
@@ -54,15 +55,15 @@ Shader "Comstom/RaymarchShader"
                 return o;
             }
 
-            /*
-            *圆的计算参考圆锥体
-            */
 
             float disField(float3 camWPos)
             {
+                float modX = pMod1(camWPos.x,_modInterval.x);
+                float modY = pMod1(camWPos.y,_modInterval.y);
+                float modZ = pMod1(camWPos.z,_modInterval.z);
                 float sphere = sdSphere(camWPos - _shpere1.xyz,_shpere1.w);
-                return sphere;
-                  
+                float box = sdBox(camWPos-_box1.xyz,_box1.www);
+                return opS(sphere,box) ;
             }
 
             //法线的计算可以了解一下gradient 与 normal的关系

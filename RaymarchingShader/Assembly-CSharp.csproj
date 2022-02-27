@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Assets\SceneViewFilter.cs" />
     <Compile Include="Assets\RaymarchCamera.cs" />
+    <Compile Include="Assets\ContrCamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\DistanceFunctions.cginc" />
