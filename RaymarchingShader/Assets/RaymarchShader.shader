@@ -23,8 +23,8 @@ Shader "Comstom/RaymarchShader"
             sampler2D _MainTex;
             sampler2D _CameraDepthTexture;
             uniform float4x4 _CamFrustum,_CamToWorld;
-            uniform float _MaxDis;
-            uniform float4 _shpere1,_box1;
+            uniform float _MaxDis,_box1round,_boxSphereSmooth,_sphereIntersectSmooth;
+            uniform float4 _shpere1,_shpere2,_box1;
             uniform float3 _LightDir;
             uniform fixed4 _mainColor;
             uniform float3 _modInterval;
@@ -55,15 +55,21 @@ Shader "Comstom/RaymarchShader"
                 return o;
             }
 
+            float boxSphere(float3 p)
+            {
+                float sphere1 = sdSphere(p - _shpere1.xyz,_shpere1.w);
+                float box1 = sdRoundBox(p-_box1.xyz,_box1.www,_box1round);
+                float combine1 = opSS(sphere1,box1,_boxSphereSmooth);
+                float sphere2 = sdSphere(p-_shpere2.xyz,_shpere2.w);
+                float combine2 = opIS(sphere2,combine1,_sphereIntersectSmooth);
+                return combine2;
+            }
 
             float disField(float3 camWPos)
             {
-                float modX = pMod1(camWPos.x,_modInterval.x);
-                float modY = pMod1(camWPos.y,_modInterval.y);
-                float modZ = pMod1(camWPos.z,_modInterval.z);
-                float sphere = sdSphere(camWPos - _shpere1.xyz,_shpere1.w);
-                float box = sdBox(camWPos-_box1.xyz,_box1.www);
-                return opS(sphere,box) ;
+                float ground = sdPlane(camWPos,float4(0,1,0,0));
+                float boxSph = boxSphere(camWPos);
+                return opU(ground,boxSph);
             }
 
             //法线的计算可以了解一下gradient 与 normal的关系

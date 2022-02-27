@@ -38,9 +38,14 @@ public class RaymarchCamera : SceneViewFilter
     }
     private Camera _cam;
     public float _maxDis;
-    public Vector4 _sphere1,_box1;
     public Color _mainColor;
-    public Vector3 _modInterval;
+
+    [Header("signe dis field")]
+    public float _box1round;
+    public float _boxSphereSmooth;
+    public float _sphereIntersectSmooth;
+    public Vector4 _sphere1, _box1, _shpere2;
+    //public Vector3 _modInterval;
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
@@ -53,11 +58,17 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetVector("_LightDir", _directionaLight ? _directionaLight.forward: Vector3.down);
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
+        //public float _maxDis, _box1round, _boxSphereSmooth, _sphereIntersectSmooth;
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
+        _raymarchMaterial.SetFloat("_box1round", _box1round);
+        _raymarchMaterial.SetFloat("_boxSphereSmooth", _boxSphereSmooth);
+        _raymarchMaterial.SetFloat("_sphereIntersectSmooth", _sphereIntersectSmooth);
+
         _raymarchMaterial.SetVector("_shpere1", _sphere1);
+        _raymarchMaterial.SetVector("_shpere2", _shpere2);
         _raymarchMaterial.SetVector("_box1", _box1);
         _raymarchMaterial.SetColor("_mainColor", _mainColor);
-        _raymarchMaterial.SetVector("_modInterval", _modInterval);
+       // _raymarchMaterial.SetVector("_modInterval", _modInterval);
         RenderTexture.active = destination;
         _raymarchMaterial.SetTexture("_MainTex", source);
 
