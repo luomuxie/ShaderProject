@@ -44,9 +44,13 @@ public class RaymarchCamera : SceneViewFilter
     public Transform _directionaLight;
     public Color _LightCol;
     public float _LightIntensity;
+
     [Header("Shadow")]
+    [Range(0,4)]
     public float _ShadowIntensity;
     public Vector2 _ShadowDis;
+    [Range(1, 128)]
+    public float _ShadowPenumbra;
 
 
     [Header("signe dis field")]
@@ -81,6 +85,7 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetFloat("_LightIntensity", _LightIntensity);
         _raymarchMaterial.SetFloat("_ShadowIntensity", _ShadowIntensity);
         _raymarchMaterial.SetVector("_ShadowDis", _ShadowDis);
+        _raymarchMaterial.SetFloat("_ShadowPenumbra", _ShadowPenumbra);
 
         // _raymarchMaterial.SetVector("_modInterval", _modInterval);
         RenderTexture.active = destination;

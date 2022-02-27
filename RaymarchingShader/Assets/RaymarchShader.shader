@@ -28,7 +28,7 @@ Shader "Comstom/RaymarchShader"
             uniform float3 _LightDir,_LightCol;
             uniform fixed4 _mainColor;
             uniform float2 _ShadowDis;
-            uniform float _LightIntensity,_ShadowIntensity;
+            uniform float _LightIntensity,_ShadowIntensity,_ShadowPenumbra;
 
 
             struct appdata
@@ -98,12 +98,28 @@ Shader "Comstom/RaymarchShader"
                 return 1.0;
             }
 
+            float softShadow(float3 ro,float3 rd,float mint,float maxt,float k)
+            {
+                float result = 1;
+                for(float t = mint;t<maxt;)
+                {
+                   float h = disField(ro+rd*t);
+                   if(h<0.001){
+                       return 0.0;
+                   }
+                   result = min(result,k*h/t);
+                   t+=h;
+                }
+                return result;
+            }
+
             float3 shading(float3 p,float3 n)
             {
                 //DirL
                 float result = (_LightCol* dot(-_LightDir,n)*0.5+0.5)*_LightIntensity;
                 //shadows
-                float shadow = hardShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y)*0.5+0.5;
+                //float shadow = hardShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y)*0.5+0.5;
+                float shadow = softShadow(p,-_LightDir,_ShadowDis.x,_ShadowDis.y,_ShadowPenumbra)*0.5+0.5;
                 shadow = max(0.0,pow(shadow,_ShadowIntensity));
                 result *= shadow;
 
