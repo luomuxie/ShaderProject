@@ -208,6 +208,34 @@ Shader "Comstom/RaymarchShader"
                     float3 s = shading(hitPos,n);
                     result = fixed4(s,1);
                     result += fixed4(texCUBE(_ReflactionCube,n).rgb*_EnvReflIntensity*_ReflactionIntensity,0);
+                    
+                    //Reflection
+                    if(_ReflectionCnt>0)
+                    {
+                        rayDir = normalize(reflect(rayDir,n));
+                        rayOrigin = hitPos+(rayDir*0.01);
+                        hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.5,_MaxIter/2,hitPos);
+                        if(hit)
+                        {
+                            float3 n = getNormal(hitPos);
+                            float3 s = shading(hitPos,n);
+                            result += fixed4(s*_ReflactionIntensity,0);
+                            
+                            if(_ReflectionCnt>1){
+                                rayDir = normalize(reflect(rayDir,n));
+                                rayOrigin = hitPos+(rayDir*0.01);
+                                hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.25,_MaxIter/4,hitPos);
+                                if(hit)
+                                {
+                                    float3 n = getNormal(hitPos);
+                                    float3 s = shading(hitPos,n);
+                                    result += fixed4(s*_ReflactionIntensity*0.5,0);
+                                }
+                            }
+                            
+                        }
+                    }
+                    
                  }else{
                      result = fixed4(0,0,0,0);
                  }
