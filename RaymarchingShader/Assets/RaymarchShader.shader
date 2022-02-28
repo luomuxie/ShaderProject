@@ -29,7 +29,9 @@ Shader "Comstom/RaymarchShader"
             uniform float _Accuracy,_MaxDis;
 
             //color
-            uniform fixed4 _mainColor;
+            uniform fixed4 _GroundColor;
+            uniform fixed4 _SphereColor[8];
+            uniform float _ColorIntensity;
 
             //light
             uniform float3 _LightDir,_LightCol;
@@ -86,24 +88,25 @@ Shader "Comstom/RaymarchShader"
             }
 
 
-            float disField(float3 camWPos)
+            float4 disField(float3 camWPos)
             {
-                float ground = sdPlane(camWPos,float4(0,1,0,0));
-                float sphere = sdSphere(camWPos-_sphere.xyz,_sphere.w);
+                float4 ground = float4(_GroundColor.rgb,sdPlane(camWPos,float4(0,1,0,0)));
+                float4 sphere = float4(_SphereColor[0].rgb, sdSphere(camWPos-_sphere.xyz,_sphere.w));
                 for(int i = 1;i<8;i++){
-                      float sphereTemp = sdSphere(rotateY(camWPos,_degreeRotate*i) -_sphere.xyz,_sphere.w);  
+                      float4 sphereTemp = float4(_SphereColor[i].rgb,sdSphere(rotateY(camWPos,_degreeRotate*i) -_sphere.xyz,_sphere.w));
                       sphere = opUS(sphere,sphereTemp,_sphereSmooth);
                 }
-                return opU(sphere,ground);
+               return opU(sphere,ground);
             }
 
             //法线的计算可以了解一下gradient 与 normal的关系
             float3 getNormal( float3 p)
             {
                 const float2 offset = float2(0.001,0.0);
-                float3 n = float3(disField(p+offset.xyy)-disField(p-offset.xyy),
-                            disField(p+offset.yxy)-disField(p-offset.yxy),
-                            disField(p+offset.yyx)-disField(p-offset.yyx)
+                float3 n = float3(
+                            disField(p+offset.xyy).w-disField(p-offset.xyy).w,
+                            disField(p+offset.yxy).w-disField(p-offset.yxy).w,
+                            disField(p+offset.yyx).w-disField(p-offset.yyx).w
                 );
                 return normalize(n);
             }
@@ -112,7 +115,7 @@ Shader "Comstom/RaymarchShader"
             {
                 for(float t = mint;t<maxt;)
                 {
-                   float h = disField(ro+rd*t);
+                   float h = disField(ro+rd*t).w;
                    if(h<0.001){
                        return 0.0;
                    }
@@ -126,7 +129,7 @@ Shader "Comstom/RaymarchShader"
                 float result = 1;
                 for(float t = mint;t<maxt;)
                 {
-                   float h = disField(ro+rd*t);
+                   float h = disField(ro+rd*t).w;
                    if(h<0.001){
                        return 0.0;
                    }
@@ -144,16 +147,16 @@ Shader "Comstom/RaymarchShader"
                 float dis;
                 for(int i = 1;i<=_AoStepsize;i++){
                     dis = step*i;
-                    ao += max(0.0,(dis-disField(p+n*dis))/dis);
+                    ao += max(0.0,(dis-disField(p+n*dis).w)/dis);
                 }
                 return (1-ao*_AoIntesity);
             }
 
-            float3 shading(float3 p,float3 n)
+            float3 shading(float3 p,float3 n,fixed3 c)
             {
                 float3 result;
                 //diffuse Color;
-                float3 color = _mainColor.rgb;
+                float3 color = c.rgb*_ColorIntensity;
                 //DirL
                 float light = (_LightCol* dot(-_LightDir,n)*0.5+0.5)*_LightIntensity;
                 //shadows
@@ -168,7 +171,7 @@ Shader "Comstom/RaymarchShader"
             }
 
 
-            fixed4 raymarching(float3 ro,float3 rd,float depth,float maxDis,float maxIter,inout float3 p)
+            fixed4 raymarching(float3 ro,float3 rd,float depth,float maxDis,float maxIter,inout float3 p,inout fixed3 dcolor)
             {
                 bool hit;
                 float t = 0;
@@ -181,12 +184,13 @@ Shader "Comstom/RaymarchShader"
                     } 
                     
                     p = ro+rd*t;
-                    float dis = disField(p);
-                    if(dis<_Accuracy){
+                    float4 dis = disField(p);
+                    if(dis.w<_Accuracy){
+                        dcolor = dis.rgb;
                        hit = true;
                        break;
                     }
-                    t += dis;
+                    t += dis.w;
                 }
                 return hit;
             }
@@ -202,10 +206,11 @@ Shader "Comstom/RaymarchShader"
 
                 fixed4 result;
                 float3 hitPos;
-                bool hit = raymarching(rayOrigin,rayDir,depth,_MaxDis,_MaxIter,hitPos);
+                fixed3 dcolor;
+                bool hit = raymarching(rayOrigin,rayDir,depth,_MaxDis,_MaxIter,hitPos,dcolor);
                 if(hit){
                     float3 n = getNormal(hitPos);
-                    float3 s = shading(hitPos,n);
+                    float3 s = shading(hitPos,n,dcolor);
                     result = fixed4(s,1);
                     result += fixed4(texCUBE(_ReflactionCube,n).rgb*_EnvReflIntensity*_ReflactionIntensity,0);
                     
@@ -214,21 +219,21 @@ Shader "Comstom/RaymarchShader"
                     {
                         rayDir = normalize(reflect(rayDir,n));
                         rayOrigin = hitPos+(rayDir*0.01);
-                        hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.5,_MaxIter/2,hitPos);
+                        hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.5,_MaxIter/2,hitPos,dcolor);
                         if(hit)
                         {
                             float3 n = getNormal(hitPos);
-                            float3 s = shading(hitPos,n);
+                            float3 s = shading(hitPos,n,dcolor);
                             result += fixed4(s*_ReflactionIntensity,0);
                             
                             if(_ReflectionCnt>1){
                                 rayDir = normalize(reflect(rayDir,n));
                                 rayOrigin = hitPos+(rayDir*0.01);
-                                hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.25,_MaxIter/4,hitPos);
+                                hit = raymarching(rayOrigin,rayDir,_MaxDis,_MaxDis*0.25,_MaxIter/4,hitPos,dcolor);
                                 if(hit)
                                 {
                                     float3 n = getNormal(hitPos);
-                                    float3 s = shading(hitPos,n);
+                                    float3 s = shading(hitPos,n,dcolor);
                                     result += fixed4(s*_ReflactionIntensity*0.5,0);
                                 }
                             }

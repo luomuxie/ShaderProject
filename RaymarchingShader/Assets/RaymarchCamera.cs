@@ -79,10 +79,17 @@ public class RaymarchCamera : SceneViewFilter
     public Cubemap _ReflactionCube;
 
     [Header("signe dis field")]
-    public Color _mainColor;
     public Vector4 _sphere;
     public float _sphereSmooth;
-    public float _degreeRotate;    
+    public float _degreeRotate;
+
+    [Header("Color")]
+    public Color _GroundColor;
+    public Gradient _sphereGradient;
+    private Color[] _SphereColor = new Color[8];
+    [Range(0,4)]
+    public float _ColorIntensity;
+
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
@@ -91,6 +98,14 @@ public class RaymarchCamera : SceneViewFilter
             Graphics.Blit(source, destination);
             return;
         }
+        for (int i = 0; i < 8; i++)
+        {
+            _SphereColor[i] = _sphereGradient.Evaluate((1f / 8) * i);
+        }
+
+        _raymarchMaterial.SetColor("_GroundColor", _GroundColor);
+        _raymarchMaterial.SetFloat("_ColorIntensity", _ColorIntensity);
+        _raymarchMaterial.SetColorArray("_SphereColor", _SphereColor);
 
         _raymarchMaterial.SetVector("_LightDir", _directionaLight ? _directionaLight.forward: Vector3.down);
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
@@ -99,7 +114,6 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetFloat("_sphereSmooth", _sphereSmooth);
         _raymarchMaterial.SetFloat("_degreeRotate", _degreeRotate);
         _raymarchMaterial.SetVector("_sphere", _sphere);
-        _raymarchMaterial.SetColor("_mainColor", _mainColor);
         _raymarchMaterial.SetColor("_LightCol", _LightCol);
         _raymarchMaterial.SetFloat("_LightIntensity", _LightIntensity);
         _raymarchMaterial.SetFloat("_ShadowIntensity", _ShadowIntensity);
@@ -117,8 +131,6 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetFloat("_ReflactionIntensity", _ReflactionIntensity);
         _raymarchMaterial.SetFloat("_EnvReflIntensity", _EnvReflIntensity);
         _raymarchMaterial.SetTexture("_ReflactionCube", _ReflactionCube);
-
-
 
 
         // _raymarchMaterial.SetVector("_modInterval", _modInterval);

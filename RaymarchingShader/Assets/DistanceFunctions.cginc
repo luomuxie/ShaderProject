@@ -28,9 +28,9 @@ float sdRoundBox(in float3 p,in float3 b,in float r)
 // BOOLEAN OPERATORS //
 
 // Union
-float opU(float d1, float d2)
+float4 opU(float4 d1, float4 d2)
 {
-	return min(d1, d2);
+	 return (d1.w < d2.w)?d1:d2;
 }
 
 // Subtraction
