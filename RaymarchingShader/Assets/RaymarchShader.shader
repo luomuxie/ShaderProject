@@ -21,14 +21,28 @@ Shader "Comstom/RaymarchShader"
             #include "DistanceFunctions.cginc"
 
             sampler2D _MainTex;
+
+            //setUp            
             sampler2D _CameraDepthTexture;
             uniform float4x4 _CamFrustum,_CamToWorld;
-            uniform float _MaxDis,_box1round,_boxSphereSmooth,_sphereIntersectSmooth;
-            uniform float4 _shpere1,_shpere2,_box1;
-            uniform float3 _LightDir,_LightCol;
+            uniform int _MaxIter;
+            uniform float _Accuracy,_MaxDis;
+
+            //color
             uniform fixed4 _mainColor;
+
+            //light
+            uniform float3 _LightDir,_LightCol;
+            uniform float _LightIntensity;           
+            
+            //shadow
             uniform float2 _ShadowDis;
-            uniform float _LightIntensity,_ShadowIntensity,_ShadowPenumbra,_MaxIter,_Accuracy;
+            uniform float _ShadowIntensity,_ShadowPenumbra;
+
+            //SDF
+            uniform float4 _sphere;
+            uniform float _sphereSmooth;
+            uniform float _degreeRotate;
 
 
             struct appdata
@@ -57,21 +71,24 @@ Shader "Comstom/RaymarchShader"
                 return o;
             }
 
-            float boxSphere(float3 p)
+            float3 rotateY(float3 v,float degree)
             {
-                float sphere1 = sdSphere(p - _shpere1.xyz,_shpere1.w);
-                float box1 = sdRoundBox(p-_box1.xyz,_box1.www,_box1round);
-                float combine1 = opSS(sphere1,box1,_boxSphereSmooth);
-                float sphere2 = sdSphere(p-_shpere2.xyz,_shpere2.w);
-                float combine2 = opIS(sphere2,combine1,_sphereIntersectSmooth);
-                return combine2;
+                float rad = 0.0174532925*degree;
+                float cosY = cos(rad);
+                float sinY = sin(rad);
+                return float3(cosY*v.x-sinY*v.z,v.y,sinY*v.x+cosY*v.z);
             }
+
 
             float disField(float3 camWPos)
             {
                 float ground = sdPlane(camWPos,float4(0,1,0,0));
-                float boxSph = boxSphere(camWPos);
-                return opU(ground,boxSph);
+                float sphere = sdSphere(camWPos-_sphere.xyz,_sphere.w);
+                for(int i = 1;i<8;i++){
+                      float sphereTemp = sdSphere(rotateY(camWPos,_degreeRotate*i) -_sphere.xyz,_sphere.w);  
+                      sphere = opUS(sphere,sphereTemp,_sphereSmooth);
+                }
+                return opU(sphere,ground);
             }
 
             //法线的计算可以了解一下gradient 与 normal的关系

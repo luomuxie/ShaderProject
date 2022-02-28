@@ -38,7 +38,7 @@ public class RaymarchCamera : SceneViewFilter
     }
     private Camera _cam;
     
-    public Color _mainColor;
+    
 
     [Header("set up")]
     public float _maxDis;
@@ -70,13 +70,11 @@ public class RaymarchCamera : SceneViewFilter
     public int _AoIter;
 
 
-
     [Header("signe dis field")]
-    public float _box1round;
-    public float _boxSphereSmooth;
-    public float _sphereIntersectSmooth;
-    public Vector4 _sphere1, _box1, _shpere2;
-    //public Vector3 _modInterval;
+    public Color _mainColor;
+    public Vector4 _sphere;
+    public float _sphereSmooth;
+    public float _degreeRotate;    
 
     private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
@@ -90,15 +88,10 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetMatrix("_CamFrustum", camFrustm(_camera));
         _raymarchMaterial.SetMatrix("_CamToWorld", _camera.cameraToWorldMatrix);
         _raymarchMaterial.SetFloat("_MaxDis",_maxDis);
-        _raymarchMaterial.SetFloat("_box1round", _box1round);
-        _raymarchMaterial.SetFloat("_boxSphereSmooth", _boxSphereSmooth);
-        _raymarchMaterial.SetFloat("_sphereIntersectSmooth", _sphereIntersectSmooth);
-
-        _raymarchMaterial.SetVector("_shpere1", _sphere1);
-        _raymarchMaterial.SetVector("_shpere2", _shpere2);
-        _raymarchMaterial.SetVector("_box1", _box1);
+        _raymarchMaterial.SetFloat("_sphereSmooth", _sphereSmooth);
+        _raymarchMaterial.SetFloat("_degreeRotate", _degreeRotate);
+        _raymarchMaterial.SetVector("_sphere", _sphere);
         _raymarchMaterial.SetColor("_mainColor", _mainColor);
-
         _raymarchMaterial.SetColor("_LightCol", _LightCol);
         _raymarchMaterial.SetFloat("_LightIntensity", _LightIntensity);
         _raymarchMaterial.SetFloat("_ShadowIntensity", _ShadowIntensity);

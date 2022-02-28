@@ -314,15 +314,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shader: {fileID: 4800000, guid: e7c65350c491fa64791a013dc7f4a06e, type: 3}
+  _maxDis: 98.13
+  _MaxIter: 100
+  _Accuracy: 0.0413
   _directionaLight: {fileID: 705507995}
-  _maxDis: 100
-  _mainColor: {r: 0.98039216, g: 0.92973405, b: 0, a: 0}
-  _box1round: 0.1
-  _boxSphereSmooth: 1.337
-  _sphereIntersectSmooth: 0.05
-  _sphere1: {x: 0, y: 2.5, z: 0, w: 2.9}
-  _box1: {x: 0, y: 2.5, z: 0, w: 2.6}
-  _shpere2: {x: 0, y: 2.5, z: 0, w: 3.4}
+  _LightCol: {r: 1, g: 0.93877554, b: 0, a: 0}
+  _LightIntensity: 1
+  _ShadowIntensity: 0.13
+  _ShadowDis: {x: 0.2, y: 16.6}
+  _ShadowPenumbra: 1
+  _AoStepsize: 1
+  _AoIntesity: 0.32
+  _AoIter: 3
+  _mainColor: {r: 0.30397826, g: 0.599118, b: 0.6509434, a: 0}
+  _sphere: {x: 2.3, y: 0.04, z: 2.83, w: 1.78}
+  _sphereSmooth: 0.2
+  _degreeRotate: 45.82
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
