@@ -69,6 +69,14 @@ public class RaymarchCamera : SceneViewFilter
     [Range(1,5)]
     public int _AoIter;
 
+    [Header("Reflection")]
+    [Range(0, 2)]
+    public int _ReflectionCnt;
+    [Range(0, 1)]
+    public float _ReflactionIntensity;
+    [Range(0, 1)]
+    public float _EnvReflIntensity;
+    public Cubemap _ReflactionCube;
 
     [Header("signe dis field")]
     public Color _mainColor;
@@ -104,6 +112,13 @@ public class RaymarchCamera : SceneViewFilter
         _raymarchMaterial.SetFloat("_AoStepsize", _AoStepsize);
         _raymarchMaterial.SetFloat("_AoIntesity", _AoIntesity);
         _raymarchMaterial.SetInt("_AoIter", _AoIter);
+
+        _raymarchMaterial.SetInt("_ReflectionCnt", _ReflectionCnt);
+        _raymarchMaterial.SetFloat("_ReflactionIntensity", _ReflactionIntensity);
+        _raymarchMaterial.SetFloat("_EnvReflIntensity", _EnvReflIntensity);
+        _raymarchMaterial.SetTexture("_ReflactionCube", _ReflactionCube);
+
+
 
 
         // _raymarchMaterial.SetVector("_modInterval", _modInterval);

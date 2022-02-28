@@ -44,6 +44,12 @@ Shader "Comstom/RaymarchShader"
             uniform float _sphereSmooth;
             uniform float _degreeRotate;
 
+            //reflection
+            uniform int _ReflectionCnt;
+            uniform float _ReflactionIntensity;
+            uniform float _EnvReflIntensity;
+            uniform samplerCUBE _ReflactionCube;
+
 
             struct appdata
             {
@@ -162,29 +168,27 @@ Shader "Comstom/RaymarchShader"
             }
 
 
-            fixed4 raymarching(float3 ro,float3 rd,float depth)
+            fixed4 raymarching(float3 ro,float3 rd,float depth,float maxDis,float maxIter,inout float3 p)
             {
-                fixed4 result = fixed4(1,1,1,1);
+                bool hit;
                 float t = 0;
-                for (int i = 0;i < _MaxIter;i++)
+                for (int i = 0;i < maxIter;i++)
                 {
 
-                    if(t>_MaxDis || t>=depth){
-                        result = fixed4(rd,0);//在范围外的话赋值环境色
+                    if(t>maxDis || t>=depth){
+                        hit = false;
                         break;
                     } 
                     
-                    float3 p = ro+rd*t;
+                    p = ro+rd*t;
                     float dis = disField(p);
                     if(dis<_Accuracy){
-                       float3 n = getNormal(p);
-                       float3 s = shading(p,n);
-                       result = fixed4(_mainColor.rgb*s,1);
+                       hit = true;
                        break;
                     }
                     t += dis;
                 }
-                return result;
+                return hit;
             }
                         
 
@@ -195,7 +199,19 @@ Shader "Comstom/RaymarchShader"
                 fixed3 col = tex2D(_MainTex,i.uv);
                 float3 rayDir = normalize(i.ray.xyz);
                 float3 rayOrigin = _WorldSpaceCameraPos;
-                fixed4 result = raymarching(rayOrigin,rayDir,depth);
+
+                fixed4 result;
+                float3 hitPos;
+                bool hit = raymarching(rayOrigin,rayDir,depth,_MaxDis,_MaxIter,hitPos);
+                if(hit){
+                    float3 n = getNormal(hitPos);
+                    float3 s = shading(hitPos,n);
+                    result = fixed4(s,1);
+                    result += fixed4(texCUBE(_ReflactionCube,n).rgb*_EnvReflIntensity*_ReflactionIntensity,0);
+                 }else{
+                     result = fixed4(0,0,0,0);
+                 }
+
                 return fixed4(col*(1.0-result.w)+result.xyz*result.w,1.0);
             }
             ENDCG
