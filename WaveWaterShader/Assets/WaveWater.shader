@@ -6,8 +6,7 @@ Shader "Constom/WaveWater"
     }
     SubShader
     {
-        // No culling or depth
-        Cull Off ZWrite Off ZTest Always
+
 
         Pass
         {
@@ -38,12 +37,17 @@ Shader "Constom/WaveWater"
             }
 
             sampler2D _MainTex;
+            sampler2D _WaterWave;
 
             fixed4 frag (v2f i) : SV_Target
             {
+                
+                float2 uv = tex2D(_WaterWave, i.uv).xy;//·¶Î§ÔÚ0-1
+                //×ªÖÁ-1-1
+                uv.x = uv*2-1;
+                uv*=0.025;
+                i.uv+=uv;                
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // just invert the colors
-                col.rgb = 1 - col.rgb;
                 return col;
             }
             ENDCG
