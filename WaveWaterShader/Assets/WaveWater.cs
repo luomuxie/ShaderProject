@@ -8,6 +8,7 @@ public class WaveWater : MonoBehaviour
     public int _waveHeight;
     [Range(0f, 0.1f)]
     public float _dampVal;
+    public int _radius;
     private float[,] _waveA;
     private float[,] _waveB;
     private Texture2D _texUV;
@@ -17,7 +18,6 @@ public class WaveWater : MonoBehaviour
         _waveB = new float[_waveWidth, _waveHeight];
         _texUV = new Texture2D(_waveWidth, _waveHeight);
         GetComponent<Renderer>().material.SetTexture("_WaterWave", _texUV);
-        //PutPop(64,64);
     }
 
     // Update is called once per frame
@@ -42,22 +42,21 @@ public class WaveWater : MonoBehaviour
         
     }
 
-    //为水波添加周期性能量
+    //为水波添加周期性能量，使水波更真具真实感
     void PutPop(int x ,int y)
     {
         //加入能量
-        int radius = 20;
         float dist;
-        for (int i = -radius; i <=radius; i++)
+        for (int i = -_radius; i <=_radius; i++)
         {
-            for (int j = -radius; j < radius; j++)
+            for (int j = -_radius; j < _radius; j++)
             {
                 if(((x+i>=0)&&(x+i<_waveWidth-1)) && (y + j >= 0) && (y + j < _waveHeight - 1))
                 {
                     dist = Mathf.Sqrt((j * j + i * i));
-                    if (dist < radius)
+                    if (dist < _radius)
                     {
-                        _waveA[x+i,y+j]  = Mathf.Cos(dist*Mathf.PI/radius)*5;
+                        _waveA[x+i,y+j]  = Mathf.Cos(dist*Mathf.PI/_radius)*5;
                     }
                 }
             }
