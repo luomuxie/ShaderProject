@@ -57,7 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\WaveWater.shader" />
-    <None Include="Assets\NewUnlitShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

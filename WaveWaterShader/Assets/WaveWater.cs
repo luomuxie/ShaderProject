@@ -17,29 +17,51 @@ public class WaveWater : MonoBehaviour
         _waveB = new float[_waveWidth, _waveHeight];
         _texUV = new Texture2D(_waveWidth, _waveHeight);
         GetComponent<Renderer>().material.SetTexture("_WaterWave", _texUV);
-        PutPop();
+        //PutPop(64,64);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButton(0))
+        {
+            RaycastHit hit; 
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); 
+            if(Physics.Raycast(ray, out hit))
+            {
+                Vector3 pos = (hit.point);
+                pos = transform.worldToLocalMatrix.MultiplyPoint(pos);
+
+                int w = (int)((pos.x + 0.5) * _waveWidth);
+                int h = (int)((pos.y + 0.5) * _waveHeight);
+                PutPop(w, h);
+            }
+        }
+        
         ComPuteWave();
         
     }
 
-
-    void PutPop()
+    //为水波添加周期性能量
+    void PutPop(int x ,int y)
     {
         //加入能量
-        _waveA[_waveWidth / 2, _waveHeight / 2] = 1;
-        _waveA[_waveWidth / 2-1, _waveHeight / 2] = 1;
-        _waveA[_waveWidth / 2 + 1, _waveHeight / 2] = 1;
-        _waveA[_waveWidth / 2, _waveHeight / 2+1] = 1;
-        _waveA[_waveWidth / 2, _waveHeight / 2 - 1] = 1;
-        _waveA[_waveWidth / 2-1, _waveHeight / 2 - 1] = 1;
-        _waveA[_waveWidth / 2 + 1, _waveHeight / 2 - 1] = 1;
-        _waveA[_waveWidth / 2 - 1, _waveHeight / 2 +1] = 1;
-        _waveA[_waveWidth / 2 + 1, _waveHeight / 2 + 1] = 1;
+        int radius = 20;
+        float dist;
+        for (int i = -radius; i <=radius; i++)
+        {
+            for (int j = -radius; j < radius; j++)
+            {
+                if(((x+i>=0)&&(x+i<_waveWidth-1)) && (y + j >= 0) && (y + j < _waveHeight - 1))
+                {
+                    dist = Mathf.Sqrt((j * j + i * i));
+                    if (dist < radius)
+                    {
+                        _waveA[x+i,y+j]  = Mathf.Cos(dist*Mathf.PI/radius)*5;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -51,8 +73,8 @@ public class WaveWater : MonoBehaviour
             for (int h = 1; h < _waveWidth-1; h++)
             {
                 _waveB[w, h] = (
-                    _waveA[w - 1, h] +//左
-                    _waveA[w + 1, h] +//右
+                    _waveA[w - 1, h] +
+                    _waveA[w + 1, h] +
                     _waveA[w, h - 1] +
                     _waveA[w, h + 1] +
                     _waveA[w - 1, h - 1] +
