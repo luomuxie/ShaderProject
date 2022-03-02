@@ -232,9 +232,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59027404b0bcdfd488d6e67a04f767b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waveWidth: 128
-  _waveHeight: 128
-  _dampVal: 0.0251
+  _waveWidth: 256
+  _waveHeight: 256
+  _dampVal: 0.0145
+  _radius: 20
 --- !u!1 &1101987369
 GameObject:
   m_ObjectHideFlags: 0
